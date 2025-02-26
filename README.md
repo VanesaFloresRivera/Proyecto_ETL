@@ -235,8 +235,9 @@ Para más detalles ejecutar el fichero main_eda.py
 
 ├── 📄 requirements.txt      *Lista de dependencias necesarias para el proyecto*
 
-├── 📄 README.md             # Documentación del proyecto y conclusiones  
+├── 📄 README.md             *Documentación del proyecto y conclusiones*
 
+├── 📄 BONUS TRACK 1-CONSULTAS SQL.md   *Consultas realizadas en Postgres"
 
 ## Requisitos de Instalación
 Ejecutar:
