@@ -109,19 +109,17 @@ CREATE TABLE reservas (
 Se crearon dos funciones de soporte para facilitar la carga de datos en la base de datos:
 
 ##### 1.1. **Función de Carga de Datos**
-Esta función se encarga de:
+Esta función, además de los parámetros de conexión a la BBDD, recibe dos parámetros, **query de inserción** y los **datos a insertar** y se encarga de:
 - Crear la **conexión** y el **cursor**.
-- Ejecutar la **query de inserción**.
-- Recibir los siguientes parámetros:  query de inserción y los **datos a insertar**.
-- Dependiendo de si los datos a insertar son una lista o no, ejecutar una subida o varias.
+- Ejecutar la **query de inserción** la cual varía en función de si el dato a insertar es un **dato individual** o una **lista**.
 - Guardar los cambios para completar la subida.
 - Cerrar el **cursor** y la **conexión**.
 
 ##### 1.2. **Función de Extracción de Datos**
-Esta función realiza lo siguiente:
+Esta función, además de los parámetros de conexión a la BBDD, recibe como parámetro la **query de extracción** y realiza lo siguiente:
 - Crear la **conexión** y el **cursor**.
 - Ejecutar la **query de extracción**.
-- Recibir la **query de extracción** y devolver los resultados como un **diccionario**.
+- Recibir los **resultados de la query de extracción** y devolver los resultados como un **diccionario**.
 - Cerrar el **cursor** y la **conexión** al finalizar.
 
 ---
@@ -169,6 +167,7 @@ Primero, se importó el **DataFrame limpio**, que fue la base para obtener los d
 
 ## 3. Análisis y Consultas
 ## Consultas SQL
+Las consultas fueron realizadas directamente desde Postgres:
 - Número total de hoteles: `29`
 - Número total de reservas: `15000`
 - Top 10 clientes que más gastaron:
