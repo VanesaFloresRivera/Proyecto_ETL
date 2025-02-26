@@ -10,10 +10,22 @@ import src.soporte_limpieza as sl
 import src.soporte_escrapeo as se
 import src.soporte_carga_BBDD as sc
 import psycopg2
+from dotenv import load_dotenv
 
-ruta_entrada = 'data/reservas_hoteles.parquet'
-ruta_salida = 'data/datos_parquet_limpios.pkl'
-ruta_guardar_escrapeo = 'data/scrapeo.pkl'
-ruta_guardar_eventos = 'data/eventos_api.pkl'
-sl.limpieza_datos(ruta_entrada, ruta_salida,ruta_guardar_escrapeo)
-sc.carga_completa_datos(ruta_salida,ruta_entrada,ruta_guardar_eventos)
+load_dotenv()
+
+ARCHIVO_RAW= os.getenv("ARCHIVO_RAW")
+ARCHIVO_SALIDA = os.getenv("ARCHIVO_SALIDA")
+URL_ESCRAPEO = os.getenv("URL_ESCRAPEO")
+RUTA_SERVICE = os.getenv("RUTA_SERVICE")
+ARCHIVO_GUARDAR_ESCRAPEO= os.getenv("ARCHIVO_GUARDAR_ESCRAPEO")
+URL_API = os.getenv("URL_API")
+ARCHIVO_GUARDAR_EVENTOS_API = os.getenv("ARCHIVO_GUARDAR_EVENTOS_API")
+DB_NAME = os.getenv("DB_NAME")
+DB_USER=os.getenv("DB_USER")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_HOST= os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+
+sl.limpieza_datos(ARCHIVO_RAW, ARCHIVO_SALIDA,URL_ESCRAPEO,RUTA_SERVICE,ARCHIVO_GUARDAR_ESCRAPEO) #Limpia los datos
+sc.carga_completa_datos(ARCHIVO_SALIDA, ARCHIVO_RAW, ARCHIVO_GUARDAR_EVENTOS_API, URL_API, DB_NAME, DB_USER, DB_PASSWORD, DB_HOST, DB_PORT) #Carga los datos en la BBDD

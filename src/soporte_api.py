@@ -6,8 +6,12 @@ from datetime import datetime
 import sys #permite navegar por el sistema
 sys.path.append("../") #solo aplica al soporte
 import src.soporte_limpieza as sl
+import os
+from dotenv import load_dotenv
 
-def eventos_api (ruta_entrada,ruta_guardar_eventos, url='https://datos.madrid.es/egob/catalogo/300107-0-agenda-actividades-eventos.json',):
+load_dotenv()
+
+def eventos_api (ruta_entrada,ruta_guardar_eventos,url_api):
     """
     Obtiene información de eventos en Madrid desde una API pública, filtra los eventos según criterios específicos
     de fecha y recurrencia, y guarda los resultados en un archivo pickle.
@@ -45,7 +49,7 @@ def eventos_api (ruta_entrada,ruta_guardar_eventos, url='https://datos.madrid.es
         Los datos extraídos se guardan en la ruta especificada en `ruta_guardar_eventos` en formato pickle.
     """
     #Obtengo la respuesta del end point:
-    respuesta = requests.get(url)
+    respuesta = requests.get(url_api)
     if respuesta.status_code == 200:
         data = respuesta.json() #convierto la respuesta en json
 
@@ -86,9 +90,9 @@ def eventos_api (ruta_entrada,ruta_guardar_eventos, url='https://datos.madrid.es
                         url_evento = evento.get("link")
                         dict_eventos['url_evento'].append(url_evento)
                         try:
-                            codigo_postal_evento = int(evento.get("address").get("area").get("postal-code"))
+                            codigo_postal_evento = evento.get("address").get("area").get("postal-code")
                         except:
-                            codigo_postal_evento= 0
+                            codigo_postal_evento= 'Sin información'
                         dict_eventos['codigo_postal'].append(codigo_postal_evento)
                         try: 
                             dirección_evento=evento.get("address").get("area").get("street-address")
@@ -96,6 +100,10 @@ def eventos_api (ruta_entrada,ruta_guardar_eventos, url='https://datos.madrid.es
                             dirección_evento = 'Sin información'
                         dict_eventos['direccion'].append(dirección_evento)
                         hora_evento = evento.get("time")
+                        if hora_evento=='':
+                            hora_evento='Sin información'
+                        else:
+                            hora_evento=hora_evento
                         dict_eventos['horario'].append(hora_evento)
                         dict_eventos['fecha_inicio'].append(fecha_inicio_evento)
                         dict_eventos['fecha_fin'].append(fecha_fin_evento)

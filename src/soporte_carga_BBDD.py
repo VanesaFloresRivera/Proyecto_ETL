@@ -5,9 +5,13 @@ import sys #permite navegar por el sistema
 sys.path.append("../") #solo aplica al soporte
 import src.soporte_api as sa
 import src.soporte_carga_BBDD as sc
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 
-def insertar_datos_en_BBDD(insert_query,data_to_insert):
+def insertar_datos_en_BBDD(insert_query,data_to_insert, db_name, db_user, db_password, db_host, db_port):
     """
     Inserta datos en una base de datos PostgreSQL utilizando una consulta SQL de inserción.
 
@@ -27,12 +31,13 @@ def insertar_datos_en_BBDD(insert_query,data_to_insert):
         psycopg2.DatabaseError: Si ocurre un error al conectar o insertar los datos en la base de datos.
     """
     #creo la conexión:
+
     conn = psycopg2.connect(
-    dbname="Proyecto_ETL_Reservas_Madrid",
-    user="postgres",
-    password="admin",
-    host="localhost",
-    port="5432"
+    dbname=db_name,
+    user=db_user,
+    password=db_password,
+    host=db_host,
+    port=db_port
     )
 
     cur= conn.cursor()#Creo el cursor:
@@ -46,7 +51,7 @@ def insertar_datos_en_BBDD(insert_query,data_to_insert):
     cur.close() #cierro el cursor
     conn.close() #cierro la conexión
 
-def extraer_datos_de_BBDD(query_extracción):
+def extraer_datos_de_BBDD(query_extracción,db_name, db_user, db_password, db_host, db_port):
     """
     Extrae datos de una base de datos PostgreSQL y los devuelve en un diccionario.
 
@@ -65,11 +70,11 @@ def extraer_datos_de_BBDD(query_extracción):
     """
     #creo la conexión:
     conn = psycopg2.connect(
-    dbname="Proyecto_ETL_Reservas_Madrid",
-    user="postgres",
-    password="admin",
-    host="localhost",
-    port="5432"
+    dbname=db_name,
+    user=db_user,
+    password=db_password,
+    host=db_host,
+    port=db_port
     )
     cur= conn.cursor()#Creo el cursor:
 
@@ -82,7 +87,7 @@ def extraer_datos_de_BBDD(query_extracción):
     return diccionario
 
 
-def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_guardar_eventos):
+def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_guardar_eventos,url_api,db_name, db_user, db_password, db_host, db_port):
     """
     Carga los datos en varias tablas de la base de datos, procesando y organizando la información 
     extraída del archivo de reservas y eventos, y gestionando la inserción en las tablas 'ciudad', 
@@ -113,16 +118,16 @@ def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_gua
 
     insert_query = "INSERT INTO ciudad(nombre_ciudad) VALUES(%s);" #creo la query de inserción
     data_to_insert = (df_reservas.ciudad[0],) #creo los datos a insertar
+
+    sc.insertar_datos_en_BBDD(insert_query,data_to_insert,db_name, db_user, db_password, db_host, db_port) #Subo la información a la BBDD
     print(f'Se ha cargado los datos en la tabla ciudad: Se han cargado:{len(data_to_insert)} registros')
 
     #CARGO LOS DATOS DE LA TABLA EVENTOS:
-    sc.insertar_datos_en_BBDD(insert_query,data_to_insert) #Subo la información a la BBDD
-
-    df_eventos = pd.DataFrame(sa.eventos_api(ruta_entrada,ruta_guardar_eventos)) #Extraigo la información de la api y lo convierto en un df
+    df_eventos = pd.DataFrame(sa.eventos_api(ruta_entrada,ruta_guardar_eventos,url_api)) #Extraigo la información de la api y lo convierto en un df
     print(f'Se han extraido los eventos de la api y se ha guardado un fichero en la ruta {ruta_guardar_eventos}')
 
     query_extracción = "SELECT nombre_ciudad, id_ciudad FROM ciudad" #creo la query para extraer los datos del id_ciudad de la BBDD
-    ciudad_dict = sc.extraer_datos_de_BBDD(query_extracción) #Extraigo el id de la ciudad de la BBDD
+    ciudad_dict = sc.extraer_datos_de_BBDD(query_extracción,db_name, db_user, db_password, db_host, db_port) #Extraigo el id de la ciudad de la BBDD
     
 
     #Creo los datos para insertarlos en la BBDD:
@@ -145,7 +150,7 @@ def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_gua
     INSERT INTO eventos(nombre_evento, url_evento, codigo_postal, direccion, horario, fecha_inicio, fecha_fin, organizacion, id_ciudad)
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """ 
-    sc.insertar_datos_en_BBDD(insert_query, data_to_insert) #Subo la información a la BBDD
+    sc.insertar_datos_en_BBDD(insert_query, data_to_insert,db_name, db_user, db_password, db_host, db_port) #Subo la información a la BBDD
     print(f'Se ha cargado los datos en la tabla eventos: Se han cargado:{len(data_to_insert)} registros')
 
     #CARGO LOS DATOS DE LA TABLA HOTELES:
@@ -166,7 +171,7 @@ def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_gua
     INSERT INTO hoteles (nombre_hotel,competencia,valoracion,id_ciudad)
     VALUES (%s, %s, %s, %s)
     """
-    sc.insertar_datos_en_BBDD(insert_query, data_to_insert) #Subo la información a la BBDD
+    sc.insertar_datos_en_BBDD(insert_query, data_to_insert,db_name, db_user, db_password, db_host, db_port) #Subo la información a la BBDD
     print(f'Se ha cargado los datos en la tabla hoteles: Se han cargado:{len(data_to_insert)} registros')
 
     #CARGO LOS DATOS DE LA TABLA CLIENTES:
@@ -187,7 +192,7 @@ def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_gua
     VALUES (%s, %s, %s, %s)
     """
     try:
-        sc.insertar_datos_en_BBDD(insert_query, data_to_insert) #Subo la información a la BBDD
+        sc.insertar_datos_en_BBDD(insert_query, data_to_insert,db_name, db_user, db_password, db_host, db_port) #Subo la información a la BBDD
         print(f'Se ha cargado los datos en la tabla clientes: Se han cargado:{len(data_to_insert)} registros')
     except Exception as e:
         print("No se pudo cargar los datos en la BBDD de la tabla clientes:", e)
@@ -197,7 +202,7 @@ def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_gua
     tabla_reservas = df_reservas[['id_reserva', 'fecha_reserva', 'inicio_estancia', 'final_estancia', 'precio_noche', 'id_cliente_unico', 'nombre_hotel' ]] #Creo la tabla reservas:
 
     query_extracción="SELECT nombre_hotel, id_hotel FROM hoteles" #creo la query para extraer los datos del id_hotel de la BBDD
-    hotel_dict=sc.extraer_datos_de_BBDD(query_extracción) #Extraigo el id de la ciudad de la BBDD
+    hotel_dict=sc.extraer_datos_de_BBDD(query_extracción,db_name, db_user, db_password, db_host, db_port) #Extraigo el id de la ciudad de la BBDD
 
     #Creo los datos para insertarlos en la BBDD:
     data_to_insert=[]
@@ -218,7 +223,7 @@ def carga_completa_datos (ruta_importación_datos_limpios, ruta_entrada,ruta_gua
     VALUES (%s, %s, %s, %s, %s, %s, %s)
     """
     try:
-        sc.insertar_datos_en_BBDD(insert_query, data_to_insert) #Subo la información a la BBDD
+        sc.insertar_datos_en_BBDD(insert_query, data_to_insert,db_name, db_user, db_password, db_host, db_port) #Subo la información a la BBDD
         print(f'Se ha cargado los datos en la tabla reservas: Se han cargado:{len(data_to_insert)} registros')
     except Exception as e:
         print("No se pudo cargar los datos en la BBDD de la tabla reservas:", e)

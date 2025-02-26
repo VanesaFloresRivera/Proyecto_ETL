@@ -8,6 +8,10 @@ import sys #permite navegar por el sistema
 sys.path.append("../") #solo aplica al soporte
 import src.soporte_limpieza as sl
 import src.soporte_escrapeo as se
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 def tran_data(lista_col, dataframe):
     """
@@ -88,7 +92,7 @@ def incorporar_información_df_original (dataframe_a_rellenar, df_valores_correc
         dataframe_a_rellenar[columna_a_rellenar] = dataframe_a_rellenar[columna_union].map(diccionario_creado)
 
 
-def limpieza_datos(ruta_entrada, ruta_salida,ruta_escrapeo,url = "https://all.accor.com/ssr/app/ibis/hotels/madrid-spain/open/index.es.shtml?compositions=1&stayplus=false&snu=false&hideWDR=false&accessibleRooms=false&hideHotelDetails=false&dateIn=2025-03-01&nights=1&destination=madrid-spain"):
+def limpieza_datos(ruta_entrada, ruta_salida,url_escrapeo,ruta_service,ruta_escrapeo):
     """
     Realiza la limpieza y transformación de un dataset de reservas hoteleras, incluyendo:
 
@@ -106,9 +110,9 @@ def limpieza_datos(ruta_entrada, ruta_salida,ruta_escrapeo,url = "https://all.ac
     Args:
         ruta_entrada (str): Ruta del archivo de entrada en formato Parquet.
         ruta_salida (str): Ruta donde se guardará el DataFrame limpio en formato pickle.
-        ruta_escrapeo (str): Ruta donde se guardarán los datos obtenidos mediante web scraping.
         url (str, opcional): URL utilizada para obtener información de la competencia mediante web scraping. 
-                             Por defecto, apunta a una página de hoteles en Madrid.
+        ruta_service (str): Ruta del ejecutable de ChromeDriver necesaria para Selenium.
+        ruta_escrapeo (str): Ruta donde se guardarán los datos obtenidos mediante web scraping.
 
     Returns:
         None: La función modifica y guarda el DataFrame limpio sin retornarlo.
@@ -119,8 +123,7 @@ def limpieza_datos(ruta_entrada, ruta_salida,ruta_escrapeo,url = "https://all.ac
     if not os.path.exists(ruta_entrada):
         print(f'Error: No se encontró el archivo {ruta_entrada}')
     else:
-        df_raw=pd.read_parquet(ruta_entrada) #importo el fichero original
-        df=df_raw.copy() #Hago una copia del df original para seguir trabajando con él
+        df=pd.read_parquet(ruta_entrada) #importo el fichero original
         df = df.drop_duplicates() #Elimino los duplicados
         print(f'El fichero original se ha importando y se han eliminado los duplicados')
 
@@ -202,8 +205,7 @@ def limpieza_datos(ruta_entrada, ruta_salida,ruta_escrapeo,url = "https://all.ac
             print('Se ha completado los precios por noche nulos existentes, según el precio medio por hotel y fecha de reserva')
 
             #COMPLETAR LOS DATOS FALTANTES DE LA COMPETENCIA CONSEGUIDOS CON EL ESCRAPEO:
-            url1= url
-            df_escrapeo = se.escrapeo(url1, ruta_escrapeo)
+            df_escrapeo = se.escrapeo(url_escrapeo, ruta_service,ruta_escrapeo)
             print(f'Se ha importado la información de los hoteles de la competencia mediante escrapeo. Se ha importado la información de {len(df_escrapeo)} hoteles')
 
         #Creo un df con el nombre de los hoteles de la competencia y el id del hotel:
