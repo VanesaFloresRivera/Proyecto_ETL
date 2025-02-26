@@ -70,28 +70,29 @@ CREATE TABLE reservas (
 
 ## Proceso ETL
 
-### 1. Extracción y transformación
-#### Archivo Parquet
-- Se limpiaron los datos eliminando duplicados y asegurando la integridad de las columnas.
-- Se transformaron las fechas al formato correcto.
-- Se generaron IDs únicos para los clientes, corrigiendo inconsistencias en IDs y correos.
-- Se corrigieron IDs de hoteles y nombres, asegurando una relación uno a uno.
-- Se calculó la valoración media de cada hotel y se hizo un estudio de si existían valores outliers.
-- Se imputaron a los valores nulos en los precios de las reservas el el promedio del precio por hotel y día.
-- Se calculó la valoración de cada hotel propio en función al promedio de estrellas que tenía cada uno
+### 1. Extracción y Transformación  
 
-#### Web Scraping
-- Se intentó extraer información con BeautifulSoup, pero debido a la carga dinámica de precios, se utilizó Selenium.
-- Se extrajo nombre del hotel, valoración, precio por noche.
-- Se la asignó a la fecha de reserva la fecha en la que se realizó el escrapeo.
-- Se le asignó a la ciudad el valor de Madrid.
-- Los datos extraídos se guardaron en un archivo pickle.
+#### Archivo Parquet  
+- Se **limpiaron los datos** eliminando **duplicados** y asegurando la **integridad de las columnas**.  
+- Se **transformaron las fechas** al formato correcto.  
+- Se **generaron IDs únicos** para los clientes, corrigiendo **inconsistencias en IDs y correos**.  
+- Se **corrigieron los IDs y nombres de los hoteles**, asegurando una **relación uno a uno**.  
+- Se **calculó la valoración media** de cada hotel y se analizaron **posibles valores atípicos (outliers)**.  
+- Se **imputaron los valores nulos** en los **precios de las reservas** con el **promedio del precio por hotel y día**.  
+- Se **calculó la valoración** de cada **hotel propio** en función del **promedio de estrellas** que tenía cada uno.  
 
-### Continuación transformación en Archivo Parquet
-- Se asignaron IDs de hotel aleatoriamente a los datos del scraping para unirlos con el dataset original.
-- Se incorporó esta información al archivo original para tener toda la información en un mismo fichero.
-- Se eliminó las columnas que no eran necesarias.
-- Los datos transformados se guardadron en un archivo pickle para usarlos posteriormente en la carga a la BBDD.
+#### Web Scraping  
+- Se **intentó extraer información** con **BeautifulSoup**, pero debido a la **carga dinámica de precios**, se utilizó **Selenium**.  
+- Se extrajeron **nombre del hotel, valoración y precio por noche**.  
+- Se **asignó la fecha de reserva** como la **fecha del scraping**.  
+- Se **asignó la ciudad** como **"Madrid"**.  
+- Los **datos extraídos** se **guardaron en un archivo pickle**.  
+
+### Continuación de la Transformación en Archivo Parquet  
+- Se **asignaron IDs de hotel aleatoriamente** a los **datos del scraping** para unirlos con el **dataset original**.  
+- Se **incorporó esta información** al **archivo original** para consolidar todos los **datos en un solo fichero**.  
+- Se **eliminaron las columnas innecesarias**.  
+- Los **datos transformados** se **guardaron en un archivo pickle** para su **posterior carga en la BBDD**.  
 
 #### API de Eventos de Madrid
 - La información de los eventos fue extraída de la **API de eventos de Madrid**, aplicando los siguientes filtros:
