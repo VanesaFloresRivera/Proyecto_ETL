@@ -81,7 +81,7 @@ df_importes_agrupación_competencia_nombrehotel['Peso_total_valor_recaudado']=ro
 #Gráfico
 orden_hoteles = df_importes_agrupación_competencia_nombrehotel.nombre_hotel.values.tolist()
 fig, axes = plt.subplots(1, 2, sharex= False, sharey=True, figsize= (20,7))
-fig.suptitle('Peso del origen del ingreso del valor realizado sobre el total', fontsize=16)
+fig.suptitle('Peso del num. de reservas y valor recaudado por hoteles', fontsize=16)
 
 
 sns.barplot(data=df_importes_agrupación_competencia_nombrehotel, x='nombre_hotel', y= 'Peso_categoria', hue='competencia',palette='cubehelix',ax=axes[0], order= orden_hoteles)
@@ -91,16 +91,17 @@ axes[0].set_xlabel('Hotel', fontsize = 12)
 axes[0].set_title('Peso num. reservas ', fontsize = 14)
 axes[0].spines['right'].set_visible(False)
 axes[0].spines['top'].set_visible(False)
+axes[0].legend().remove()
 
 
 sns.barplot(data=df_importes_agrupación_competencia_nombrehotel, x='nombre_hotel', y= 'Peso_total_valor_recaudado', palette='cubehelix',ax=axes[1],  hue='competencia', order= orden_hoteles)
 axes[1].tick_params(axis='x', rotation=90, labelsize=10)
 axes[1].set_ylabel('%', fontsize = 12)
 axes[1].set_xlabel('Hotel', fontsize = 12)
-axes[1].set_title('Peso Importe Valor realizado total', fontsize = 14)
+axes[1].set_title('Peso Importe Valor recaudado total', fontsize = 14)
 axes[1].spines['right'].set_visible(False)
 axes[1].spines['top'].set_visible(False)
-axes[1].legend();
+axes[1].legend(title = 'Tipo de hotel', title_fontsize =10,bbox_to_anchor=(1.05,1), loc = "upper left");
 
 plt.show()
 
